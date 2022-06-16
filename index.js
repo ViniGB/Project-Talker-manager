@@ -19,6 +19,34 @@ const PORT = '3000';
 // Req 03
 const createToken = () => crypto.randomBytes(8).toString('hex');
 
+// Req 04
+const authEmail = (req, res, next) => {
+  const { email } = req.body;
+
+  if (!email || email === '') {
+    return res.status(400).json({ message: 'O campo "email" é obrigatório' });
+  }
+
+  if (!(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email))) {
+    return res.status(400).json({ message: 'O "email" deve ter o formato "email@email.com"' });
+  }
+  
+  next();
+};
+
+const authPassword = (req, res, next) => {
+  const { password } = req.body;
+  if (!password) {
+    return res.status(400).json({ message: 'O campo "password" é obrigatório' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ message: 'O "password" deve ter pelo menos 6 caracteres' });
+  }
+
+  next();
+};
+
 // Req 02
 app.get('/talker/:id', (req, res) => {
   const { id } = req.params;
@@ -37,8 +65,7 @@ app.get('/talker', (_req, res) => {
 });
 
 // Req 03
-app.post('/login', (req, res) => {
-  // const { email, password } = req.body;
+app.post('/login', authEmail, authPassword, (_req, res) => {
   const randomToken = createToken();
   res.status(200).json({ token: randomToken });
 });
