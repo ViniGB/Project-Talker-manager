@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const crypto = require('crypto');
 
 const talkers = 'talker.json';
 
@@ -9,6 +10,14 @@ app.use(bodyParser.json());
 
 const HTTP_OK_STATUS = 200;
 const PORT = '3000';
+
+// const user = {
+//   email: 'email@email.com',
+//   password: '123456',
+// };
+
+// Req 03
+const createToken = () => crypto.randomBytes(8).toString('hex');
 
 // Req 02
 app.get('/talker/:id', (req, res) => {
@@ -25,6 +34,13 @@ app.get('/talker', (_req, res) => {
   const data = fs.readFileSync(talkers, 'utf8');
   if (!data) return res.status(200).json([]);
   return res.status(200).json(JSON.parse(data));
+});
+
+// Req 03
+app.post('/login', (req, res) => {
+  // const { email, password } = req.body;
+  const randomToken = createToken();
+  res.status(200).json({ token: randomToken });
 });
 
 // não remova esse endpoint, e para o avaliador funcionar
