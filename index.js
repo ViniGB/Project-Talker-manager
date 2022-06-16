@@ -10,6 +10,16 @@ app.use(bodyParser.json());
 const HTTP_OK_STATUS = 200;
 const PORT = '3000';
 
+// Req 02
+app.get('/talker/:id', (req, res) => {
+  const { id } = req.params;
+  const data = fs.readFileSync(talkers, 'utf8');
+  const findDataById = JSON.parse(data).find((talker) => talker.id === Number(id));
+
+  if (!findDataById) return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+  return res.status(200).json(findDataById);
+});
+
 // Req 01
 app.get('/talker', (_req, res) => {
   const data = fs.readFileSync(talkers, 'utf8');
