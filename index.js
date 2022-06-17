@@ -153,6 +153,22 @@ app.put('/talker/:id',
     res.status(200).json(parsedTalkers[talkerId]);
 });
 
+// Req 07
+app.delete('/talker/:id', authToken, (req, res) => {
+  const { id } = req.params;
+  const data = fs.readFileSync(talkers, 'utf8');
+  const parsedTalkers = JSON.parse(data);
+  const talkerId = parsedTalkers.findIndex((talker) => talker.id === Number(id));
+
+  if (talkerId === -1) {
+    return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+  }
+
+  parsedTalkers.splice(talkerId, 1);
+  fs.writeFileSync(talkers, JSON.stringify(parsedTalkers));
+  res.status(204).end();
+});
+
 // Req 02
 app.get('/talker/:id', (req, res) => {
   const { id } = req.params;
