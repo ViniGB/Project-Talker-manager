@@ -107,7 +107,7 @@ const authWatchedAt = (req, res, next) => {
 const authRate1 = (req, res, next) => {
   const { talk } = req.body;
   const { rate } = talk;
-  if (!rate || rate === '') {
+  if (!rate && rate !== 0) {
     return res.status(400).json({ message: 'O campo "rate" é obrigatório' });
   }
 
@@ -118,12 +118,40 @@ const authRate2 = (req, res, next) => {
   const { talk } = req.body;
   const { rate } = talk;
 
-  if (rate < 1 || rate > 5) {
+  if (!Number.isInteger(rate) || rate < 1 || rate > 5) {
     return res.status(400).json({ message: 'O campo "rate" deve ser um inteiro de 1 à 5' });
   }
 
   next();
 };
+
+// Req 06
+app.put('/talker/:id',
+  authToken,
+  authName,
+  authAge,
+  authTalk,
+  authWatchedAt,
+  authRate1,
+  authRate2,
+  (req, res) => {
+    const { id } = req.params;
+    const { name, age, talk } = req.body;
+    const { watchedAt, rate } = talk;
+    const data = fs.readFileSync(talkers, 'utf8');
+    const parsedTalkers = JSON.parse(data);
+    const talkerId = parsedTalkers.findIndex((talker) => talker.id === Number(id));
+
+    if (talkerId === -1) {
+      return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+    }
+
+    parsedTalkers[talkerId] = {
+      ...parsedTalkers[talkerId], name, age, talk: { watchedAt, rate },
+    };
+    fs.writeFileSync(talkers, JSON.stringify(parsedTalkers));
+    res.status(200).json(parsedTalkers[talkerId]);
+});
 
 // Req 02
 app.get('/talker/:id', (req, res) => {
