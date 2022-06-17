@@ -169,6 +169,22 @@ app.delete('/talker/:id', authToken, (req, res) => {
   res.status(204).end();
 });
 
+// Req 08
+app.get('/talker/search', authToken, (req, res) => {
+  const { q } = req.query;
+  const data = fs.readFileSync(talkers, 'utf8');
+  const parsedTalkers = JSON.parse(data);
+  const filteredTalkers = parsedTalkers.filter((talker) => talker.name.includes(q));
+  if (!q || q === '') {
+    return res.status(200).json(parsedTalkers);
+  }
+  if (!filteredTalkers) {
+    return res.status(200).json([]);
+  }
+
+  res.status(200).json(filteredTalkers);
+});
+
 // Req 02
 app.get('/talker/:id', (req, res) => {
   const { id } = req.params;
